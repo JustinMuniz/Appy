@@ -1,2 +1,2 @@
-Apper-Qt
+Appy-Qt
 ========
