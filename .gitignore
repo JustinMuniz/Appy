@@ -1,0 +1,3 @@
+# Ignore the binary file created when building the application for testing
+
+/appy
