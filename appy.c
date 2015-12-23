@@ -3,7 +3,6 @@
 // Included headers
 #include <ncurses.h> // ncurses functions
 #include <unistd.h> // POSIX system call functions
-#include <stdio.h> // Standard stream calls such as stderr and stdout
 #include <stdlib.h> // Standard C library
 #include <string.h> // String variable functions
 
@@ -100,5 +99,12 @@ static void exit_failure(char error_message[], int* exit_status, int* looping) {
 // Function Library
 
 // sleep(1) // Wait for one second before continuing
-// clear(); // Clear the ncurses window buffer
-// cbreak(); // Turn off line buffering, keep control sequences as signals
+// clear() // Clear the ncurses window buffer
+// cbreak() // Turn off line buffering, keep control sequences as signals
+// startcolor() //
+// curs_set(0) //
+// init_pair(1, COLOR_WHITE, COLOR_BLUE) //
+// wbkgd( , ) //
+// waddstr( , ) //
+// wattron( , ) //
+// wattroff( , ) //
