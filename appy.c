@@ -13,32 +13,30 @@
 #include <signal.h> /* Allows handling of application's signals passed from the operating system */
 
 /* Function prototypes */
-static int load_pkg_info(); /* Loads pkg database information into a structure */
+static int initialization_tests(); /* Detects if system can support appy */
 static void exit_failure(char error_message[], int* exit_status, int* looping); /* Safely stop the main loop after providing an error message */
 static void exit_application(); /* Release memory and terminate the application */
-static int draw_menu_bar(WINDOW *menu_bar, MENU *menu_bar_menu); /* Create and post the menu displayed at the top of the screen */
+
+/* ncurses window declaration, document wide so to be deallocated */
+static WINDOW *menu_bar; /* Initialize a sub-window to contain the menu bar at the top of the screen */
 
 /* Entry point for application */
 int main(int argc, char *argv[]) {
 
 	/* Type declarations */
-	enum state_t {DETECT_PKG, LOAD_PKG_INFO, DRAW_WINDOWS, FINISHED}; /* Application's possible tasks as a type */
+	enum state_t {INITIALIZATION_TESTS, LOAD_CONFIGURATION, DRAW_WINDOWS, FINISHED}; /* Application's possible tasks as a type */
 
 	/* Standard variable declaration */
-	enum state_t application_state = DETECT_PKG; /* Instance of application state enumeration type set to initial state */
+	enum state_t application_state = INITIALIZATION_TESTS; /* Instance of application state enumeration type set to initial state */
 	const char *key_press_name; /* Variable to hold current key press English name */
 	int key_press_value; /* Variable to catch key presses */
 	int exit_status = EXIT_SUCCESS; /* Set initial exit status to be passed to the terminal, no malfunction */
 	int looping = 1; /* When set to one, keep keep the application alive */
-
-	/* ncurses variable declaration */
-	WINDOW *menu_bar; /* Initialize a sub-windows to contain the menu bar at the top of the screen */
-	MENU *menu_bar_menu; /* Initialize the menu structure that will be used at the top of the screen */
 	
 	/* ncurses initialization and configuration */
 	initscr(); /* Initialize the ncurses window */
 	noecho(); /* Do not echo user input from keyboard in ncurses */
-	curs_set(FALSE);  /* Hide the cursor in ncurses */
+	curs_set(FALSE);  /* Hide the cursor incurses */
 	keypad(stdscr, TRUE); /* Enable detection of function keys and special keys */
 	cbreak(); /* Turn off line buffering */
 	nodelay(stdscr, TRUE); /* Receive key presses when they happen without waiting */
@@ -49,44 +47,49 @@ int main(int argc, char *argv[]) {
 	/* Main logic loop */
 	while (looping == 1) {
 		
-		/* Key press, mouse action, and application signal detection */
+		/* Specific key press, mouse action, and application signal detection */
 		key_press_value = getch(); /* If a key was pressed, store the key's value */
 		key_press_name = keyname(key_press_value); /* Convert the value to the name to determine if there are escape characters */
+
+		 /*  */
+		if (!strncmp(key_press_name, "KEY_F(1)", 2)) { 
+			mvprintw(1,1, key_press_name); /*  */
+		} /*  */
+
 
 		/* This switch statement determines what part of the application needs to run */
 		switch ( application_state ) {
 
-			/* The first step is to make sure that pkg is ready to work */
-			case DETECT_PKG:
-				
-				/*
-				TODO: Make this a function that returns status code
-				TODO: Create an interpretation of the returned status code
-				TODO: Detect whether or not pkg is installed using "pkg query %v pkg"?
-				TODO: Detect whether or not pkg info has been downloaded / initialized
-				*/
-				
-				/* Wrap up current state, and signal to proceed to the next */
-				application_state = LOAD_PKG_INFO; /* Move on to the next state for the next loop */
-				break; /* End case */
-
-			/* This step may run several times throughout the span of the application, it loads the database information */
-			case LOAD_PKG_INFO:
+			/* This first state is to detect that all is well with the system, and that appy is able to execcute properly */
+			case INITIALIZATION_TESTS:
 
 				/* Perform the information parsing function, then interpret the returned status code */
-				if ( load_pkg_info() ) { /* If the function failed react accordingly */
-					exit_failure("Error loading pkg info, exiting", &exit_status, &looping); /* Stop the application with an error message */
+				if ( initialization_tests() ) { /* If the function failed react accordingly */
+					exit_failure("Error initializing appy, exiting", &exit_status, &looping); /* Stop the application with an error message */
 				} /* End if */
 
 				/* Wrap up current state, and signal to proceed to the next */
 				application_state = DRAW_WINDOWS; /* Move on to drawing the UI */
 				break; /* End case */
 
+			/* */
+			case LOAD_CONFIGURATION:
+
+				/*
+				TODO: Load configuration appy files
+				TODO: Load pkg configuration files
+				*/
+
+				/* Wrap up current state, and signal to proceed to the next */
+				application_state = DRAW_WINDOWS; /* Used to test completion of other cases */
+				break; /* */
+
 			/* Split the windows up into sub-windows, and load the menu bar */
 			case DRAW_WINDOWS:
 
 				/* Create sub-windows */
-				draw_menu_bar(&*menu_bar, &*menu_bar_menu); /* Create menu bar at the top of the screen */
+				menu_bar = subwin(stdscr,1, 80, 0, 0); /* Associate the menu container window with placement on stdscr */
+				mvwprintw(menu_bar, 0, 0, " File   About"); /* Create menu bar at the top of the screen */
 				
 				/* Render changes by telling stdscr to refresh */
 				touchwin(stdscr); /* Mark stdscr to be refreshed as though it was modified */
@@ -116,54 +119,21 @@ int main(int argc, char *argv[]) {
 } /*End main function */
 
 /* Function to load package information from pkg */
-static int load_pkg_info() {
+static int initialization_tests() {
 
 	/* Write loading status to the screen to inform user of progress */
 	mvprintw(0,0,"Loading...\n"); /* Print a loading status indicator in the ncurses window at position (0,0) */
 	refresh(); /* Write window buffer to the terminal */
 
 	/*
-	TODO: Figure out what to do here
-	TODO: Load in current info
+	TODO: Make sure user is running FreeBSD
+	TODO: Make sure user is capible of using pkg
+	TODO: Make sure that user provided arguements are sane
 	*/
 
 	/* Wrap up function and return to caller function with success code */
 	return(0); /* Send success code back to main function */
-} /* End load_pkg_info function */
-
-/* Function to generate and place the navigation menu bar found at the top of the screen */
-static int draw_menu_bar(WINDOW *menu_bar, MENU *menu_bar_menu) {
-
-	/* Variable declaration */
-	char *menu_bar_categories[] = {"File", "About", (char*)NULL}; /*  */
-	ITEM **menu_bar_items = (ITEM **)calloc(2, sizeof(ITEM *)); /*  */
-
-	/*
-	TODO: Determine if this should be a panel instead
-	TODO: Have number of categories algorithmically determined instead of a magic number
-	TODO: Hide selected item highlighting when menu bar is not active
-	*/
-
-	/* Generate the structures required to display the menu bar */
-	for(int i = 0; i< 2; i++) /* Loop through each menu category */
-		menu_bar_items[i] = new_item(menu_bar_categories[i],menu_bar_categories[i]); /* Create a menu label and description from the categories */
-	menu_bar_menu = new_menu((ITEM **)menu_bar_items); /* Load each menu item into the menu structure */
-	menu_bar = subwin(stdscr,1, 80, 0, 0); /* Associate the menu container window with placement on stdscr */
-
-	/* Place menu structures into windows: a container, and a menu window */
-	werase(menu_bar); /* Clear out the loading status */
-	set_menu_win(menu_bar_menu,menu_bar); /* Associate menu with it's container window */
-	set_menu_sub(menu_bar_menu, derwin(menu_bar, 1, 80, 0, 0)); /* Associate the menu window with it's placement in the container window */
-
-	/* Specify menu formating */
-	set_menu_format(menu_bar_menu, 1, 2); /* Menu requires one row with a column for each menu item */
-	menu_opts_off(menu_bar_menu, O_SHOWDESC); /* The menu items should have a label visible, but no description */
-	set_menu_mark(menu_bar_menu, NULL); /* Hide the cursor that shows currently selected item */
-
-	/* Display the menu bar and return a success code */
-	post_menu(menu_bar_menu); /* Display the menu */
-	return(0); /* Return to caller with success code */
-} /* End draw_menu_bar function */
+} /* End initialization_tests function */
 
 /* Function to display a fatal error message and exit the application cleanly */
 static void exit_failure(char error_message[], int* exit_status, int* looping) {
@@ -177,14 +147,11 @@ static void exit_failure(char error_message[], int* exit_status, int* looping) {
 /* Function to exit while releasing memory used in application */
 static void exit_application(int sig) {
 
-	/* Garbage collection */
-
-	/*
-	TODO: menu bar collection
-	*/
+	/* Deallocate the ncurses windows */
+	delwin(menu_bar); /* Delete the container window for the navigation bar */
+	endwin(); /* Restore normal terminal behavior */
 
 	/* Close program with exit status code */
-	endwin(); /* Restore normal terminal behavior */
 	/* For testing purposes, next line */
 	fprintf(stdout, "Debug exit status: %i\n", sig); /* Print the exit status to the terminal */
 	exit( sig ); /* Reflect to the terminal whether the application completed successfully or not */
@@ -193,11 +160,12 @@ static void exit_application(int sig) {
 
 /* TODO:
 
+Combine draw_menu_bar and traverse_menu_bar
 Add in resize functionality
 Add in screen width / height recognition
-Comment everything
+Add a note to the navigation menu specifying to press F1 to access the menu
 Add in error detection for everything
-Create navigation sub-menus
+Create dynamic navigation sub-menus
 Test for memory leaks
 */
 
