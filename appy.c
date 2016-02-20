@@ -69,13 +69,14 @@ int main(int argc, char *argv[]) {
 				} /* End if */
 
 				/* Wrap up current state, and signal to proceed to the next */
-				application_state = DRAW_WINDOWS; /* Move on to drawing the UI */
+				application_state = LOAD_CONFIGURATION; /* Move on to drawing the UI */
 				break; /* End case */
 
 			/* */
 			case LOAD_CONFIGURATION:
 
 				/*
+				TODO: Test if configuration files exist
 				TODO: Load configuration appy files
 				TODO: Load pkg configuration files
 				*/
@@ -197,3 +198,82 @@ if (!strncmp(key_press_name, "^C", 2)) {	|	Check to see if the key press is ctr-
 	application_state = FINISHED;			|	Skip the main loop altogether
 }											|	End if
 */
+
+
+/* Broken code */
+
+///* Function to generate and place the navigation menu bar found at the top of the screen */
+// static int draw_menu_bar(WINDOW *menu_bar, MENU *menu_bar_menu) {
+
+// 	static MENU *menu_bar_menu; /* Initialize the menu structure that will be used at the top of the screen */
+// 	static ITEM **menu_bar_items; /* Initialize the menu items array for the navigation menuz */
+// 	static WINDOW *menu_bar_sub_window; /* Initialize the proper navigation menu sub-window */
+
+
+// 	/* Variable declaration */
+// 	char *menu_bar_categories[] = {"File", "About", (char*)NULL}; /* An array of menu item labels */
+// 	int number_of_categories = sizeof(menu_bar_categories) / sizeof(menu_bar_categories[0]); /* Determine the number of menu items required */
+// 	menu_bar_items = (ITEM **)calloc( number_of_categories, sizeof(ITEM *)); /* Allocate the memory required for the menu items */
+
+// 	/*
+// 	TODO: Hide selected item highlighting when menu bar is not active
+// 	*/
+
+// 	/* Generate the structures required to display the menu bar */
+// 	for(int i = 0; i< number_of_categories - 1; i++) /* Loop through each menu category save the null character */
+// 		menu_bar_items[i] = new_item(menu_bar_categories[i],menu_bar_categories[i]); /* Create a menu label and description from the categories */
+// 	menu_bar_items[number_of_categories - 1] = (ITEM *)NULL; /* Null terminated array */
+// 	menu_bar_menu = new_menu((ITEM **)menu_bar_items); /* Load each menu item into the menu structure */
+// 	//menu_bar = subwin(stdscr,1, 80, 0, 0); /* Associate the menu container window with placement on stdscr */
+// 	menu_bar_sub_window = derwin(menu_bar, 1, 80, 0, 0); /* Create the window to hold the navigation menu */
+
+// 	/* Place menu structures into windows: a container, and a menu window */
+// 	werase(menu_bar); /* Clear out the loading status */
+// 	set_menu_win(menu_bar_menu, menu_bar); /* Associate menu with it's container window */
+// 	set_menu_sub(menu_bar_menu, menu_bar_sub_window); /* Associate the menu window with it's placement in the container window */
+
+// 	/* Specify menu formating */
+// 	set_menu_format(menu_bar_menu, 1, 2); /* Menu requires one row with a column for each menu item */
+// 	menu_opts_off(menu_bar_menu, O_SHOWDESC); /* The menu items should have a label visible, but no description */
+
+// 	//set_menu_mark(menu_bar_menu, NULL); /* Hide the cursor that shows currently selected item */
+// 	//set_menu_fore(menu_bar_menu, A_NORMAL); /* Disguise the selected item as unselected until navigation menu is in forcus */
+
+// 	/* Display the menu bar and return a success code */
+// 	post_menu(menu_bar_menu); /* Display the menu */
+// 		int bug = menu_driver(menu_bar_menu, REQ_RIGHT_ITEM);
+// 	mvprintw(10,10, "%i", bug);
+// 	menu_driver(menu_bar_menu, REQ_LEFT_ITEM);
+
+// 	/* Return menu_bar appearance to normal */
+// 	mvwprintw(menu_bar, 0, 0, " File   About"); /* Create menu bar at the top of the screen */
+
+// 	return(0); /* Return to caller with success code */
+// } /* End draw_menu_bar function */
+
+// /*  */
+// static int traverse_menu_bar() {
+// 	//set_menu_fore(menu_bar_menu, A_NORMAL); /*  */
+// 	int bug = menu_driver(menu_bar_menu, REQ_DOWN_ITEM);
+// 	mvprintw(0,0, "%i", bug);
+
+	
+// 	TODO: Select first menu item
+// 	TODO: Show "File" sub menu
+// 	TODO: Select first sub menu item
+// 	TODO: Accept input (left, right, up, down, enter, F1, esc)
+// 	TODO: Free sub menus
+// 	TODO: Hide selected menu highlighting
+	
+// 	mvprintw(10,10,"hi");
+// 	//post_menu(menu_bar_menu);
+
+
+	/* Deallocate windows, menus, and items */
+	//for(int i = 0; i < sizeof(menu_bar_items) / sizeof(menu_bar_items[0]); i++) /* Loop through each menu category */
+	//	free_item(menu_bar_items[i]); /* Delete each navigation menu item */
+	//free_menu(menu_bar_menu); /* Delete the navigation menu */
+	//delwin(menu_bar_sub_window); /* delete the proper navigation bar window */
+
+// 	return(0); /*  */
+// } /*  */
